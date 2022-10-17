@@ -31,7 +31,7 @@ class SA_Bot(Bot):
             neighbor_state = self.__modify_state(current_state, neighbor_marking)
 
             delta_E = self.__obj_func(neighbor_state, neighbor_marking) - self.__obj_func(current_state, current_marking)
-            is_accept = 2.71828^(delta_E/current_temp) > random.randrange(0, 1)  
+            is_accept = 2.71828**(delta_E/current_temp) > random.randrange(0, 1)  
             if (delta_E > 0 or is_accept):
                 current_marking = neighbor_marking
         
@@ -91,9 +91,9 @@ class SA_Bot(Bot):
     """ Cooling Schedule """
     def __cooling_temp(self, current_temp, iteration):
         # fast simulated annealing. Trial and error needed
-        return current_temp / (1 + iteration)
+        return current_temp/iteration
 
-    """ Heuristic Function """
+    """ Heuristic Functions """
     def __obj_func(self, modified_state: GameState, marked_position: GameAction):
         total_score = 0
         pass
