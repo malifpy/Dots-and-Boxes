@@ -22,7 +22,7 @@ class SA_Bot(Bot):
         current_marking = self.__random_marking(state)
         current_state = self.__modify_state(state, current_marking)
 
-        __debug_max_delta = 0
+        # __debug_max_delta = 0
         
         while (time.time() - start_time < self.__BOT_TIMEOUT_SECOND):
             iteration += 1
@@ -40,8 +40,8 @@ class SA_Bot(Bot):
             E_current = self.__obj_func(current_state, current_marking)
             delta_E = E_neighbor - E_current
             # is_accept = 2.71828 ** round(- delta_E / current_temp, 3) > random.randrange(0, 1)  
-            if delta_E > __debug_max_delta:
-                __debug_max_delta = delta_E
+            # if delta_E > __debug_max_delta:
+            #     __debug_max_delta = delta_E
             # print(iteration, neighbor_marking, state.board_status, delta_E)
 
             if (delta_E > 0):
@@ -160,12 +160,14 @@ class SA_Bot(Bot):
             return 2
         elif box_status == 0:
             return 0
-        elif abs(box_status) == 1:
-            return -1
-        elif abs(box_status) == 2:
-            return 1
         else:
-            return (int(is_extra_turn) * 2 - 1) * 2
+            box_side = abs(box_status)
+            if box_side == 1:
+                return -1
+            elif box_side == 2:
+                return -1
+            else:
+                return (int(is_extra_turn) * 2 - 1) * 2
 
     def __obj_func(self, modified_state: GameState, marked_position: GameAction):
         # print(marked_position)
