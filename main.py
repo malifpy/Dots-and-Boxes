@@ -11,6 +11,7 @@ from GameState import GameState
 
 # * Import your bot
 from RandomBot import RandomBot
+from SA_Bot import SA_Bot
 
 size_of_board = 600
 number_of_dots = 4
@@ -314,5 +315,6 @@ if __name__ == "__main__":
     PvB mode: game_instance = Dots_and_Boxes(None, BotName()) or game_instance = Dots_and_Boxes(BotName(), None)
     BvB mode: game_instance = Dots_and_Boxes(BotName(), BotName())
     """
-    game_instance = Dots_and_Boxes(None, RandomBot())
+    # game_instance = Dots_and_Boxes(None, RandomBot())
+    game_instance = Dots_and_Boxes(None, SA_Bot())
     game_instance.mainloop()

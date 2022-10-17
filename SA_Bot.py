@@ -1,6 +1,7 @@
 from Bot import Bot
 from GameAction import GameAction
 from GameState import GameState
+from typing import Tuple
 import random
 import numpy as np
 import time
@@ -20,6 +21,8 @@ class SA_Bot(Bot):
 
         current_marking = self.__random_marking(state)
         current_state = self.__modify_state(state, current_marking)
+
+        # __debug_max_delta = 0
         
         while (time.time() - start_time < self.__BOT_TIMEOUT_SECOND):
             iteration += 1
@@ -31,14 +34,20 @@ class SA_Bot(Bot):
             neighbor_state = self.__modify_state(current_state, neighbor_marking)
 
             delta_E = self.__obj_func(neighbor_state, neighbor_marking) - self.__obj_func(current_state, current_marking)
-            is_accept = 2.71828**(delta_E/current_temp) > random.randrange(0, 1)  
-            if (delta_E > 0 or is_accept):
+            # is_accept = 2.71828 ** round(- delta_E / current_temp, 3) > random.randrange(0, 1)  
+            # if delta_E > __debug_max_delta:
+            #     __debug_max_delta = delta_E
+            # print(iteration, delta_E, __debug_max_delta)
+
+            if (delta_E > 0):
+                current_marking = neighbor_marking
+            elif 2.71828 ** round(- delta_E / current_temp, 3) > random.randrange(0, 1):
                 current_marking = neighbor_marking
         
         return current_marking
 
     def __modify_state(self, state: GameState, action: GameAction) -> GameState:
-        modfied_state = copy.copy(state)
+        modfied_state = copy.deepcopy(state)
         x = action.position[0]
         y = action.position[1]
 
@@ -91,12 +100,67 @@ class SA_Bot(Bot):
     """ Cooling Schedule """
     def __cooling_temp(self, current_temp, iteration):
         # fast simulated annealing. Trial and error needed
-        return current_temp/iteration
+        # return current_temp/iteration
+        return current_temp / 2
 
     """ Heuristic Functions """
-    def __obj_func(self, modified_state: GameState, marked_position: GameAction):
-        total_score = 0
-        pass
+    def __get_ud_status_row(self, state: GameState, position: Tuple[int, int]):
+        [max_y, max_x] = state.board_status.shape
+        (px, py) = position
+        if (py - 1 < 0):
+            up_status = np.nan
+        else:
+            up_status = state.board_status[py - 1][px]
 
-    def __box_eval(self, modified_state: GameState, marked_position: GameAction, is_extra_turn: bool = False):
-        pass
+        if (py + 1 >= max_y):
+            down_status = np.nan
+        else:
+            down_status = state.board_status[py + 1][px]
+
+        return np.array([up_status, down_status])
+
+    def __get_lr_status_col(self, state: GameState, position: Tuple[int, int]):
+        [max_y, max_x] = state.board_status.shape
+        (px, py) = position
+        if (px - 1 < 0):
+            left_status = np.nan
+        else:
+            left_status = state.board_status[py][px - 1]
+
+        if (px + 1 >= max_x):
+            right_status = np.nan
+        else:
+            right_status = state.board_status[py][px + 1]
+
+        return np.array([left_status, right_status])
+
+    def __has_extra_move(self, state: GameState, action: GameAction):
+        if action.action_type == "row":
+            adjacent_status = self.__get_ud_status_row(state, action.position)
+        else:
+            adjacent_status = self.__get_lr_status_col(state, action.position)
+
+        return np.any(adjacent_status + 1 == 4)
+
+
+    def __box_eval(self, box_status: int, is_extra_turn: bool = False):
+        if box_status == 4:
+            return 2
+        elif box_status == -4:
+            return 2
+        elif box_status == 0:
+            return 0
+        elif box_status == 1:
+            return -1
+        elif box_status == 2:
+            return 1
+        else:
+            return (int(is_extra_turn) * 2 - 1) * 2
+
+    def __obj_func(self, modified_state: GameState, marked_position: GameAction):
+        has_extra_turn = self.__has_extra_move(modified_state, marked_position)
+        total_score = 0
+        for box_status_row in modified_state.board_status:
+            for box_status in box_status_row:
+                total_score += self.__box_eval(box_status, has_extra_turn)
+        return total_score
