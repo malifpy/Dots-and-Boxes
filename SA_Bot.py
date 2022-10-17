@@ -27,7 +27,7 @@ class SA_Bot(Bot):
             if (current_temp == 0):
                 return current_marking
 
-            neighbor_marking = self.__get_random_marking(current_state)
+            neighbor_marking = self.__random_marking(current_state)
             neighbor_state = self.__modify_state(current_state, neighbor_marking)
 
             delta_E = self.__obj_func(neighbor_state, neighbor_marking) - self.__obj_func(current_state, current_marking)
