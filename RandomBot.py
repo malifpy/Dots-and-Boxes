@@ -8,8 +8,6 @@ class RandomBot(Bot):
     def get_action(self, state: GameState) -> GameAction:
         all_row_marked = np.all(state.row_status == 1)
         all_col_marked = np.all(state.col_status == 1)
-        for i in state:
-            print(i)
 
         if not (all_row_marked or all_col_marked):
             return self.get_random_action(state)
