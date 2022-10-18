@@ -19,7 +19,6 @@ class RandomBot(Bot):
     def get_action(self, state: GameState) -> GameAction:
         #Menyimpan informasi parrent state (parent tree)
         parrent_state = (state)
-        print(parrent_state)
         kedalaman = self.__kedalaman
         #Menyimpan informasi initial minimum score dan aksi yang nanti akan dikerjakan si bot
         minimum_score = 1000
@@ -30,7 +29,6 @@ class RandomBot(Bot):
         b = 0
 
         #untuk setiap row akan dicek mana yang belum diberi garis
-        print("row")
         i = 0
         j = 0
         for i in range (4) :
@@ -41,7 +39,6 @@ class RandomBot(Bot):
                         return (GameAction("row", (j,i)))
                     #simpan aksi yang dilakukan dan state setelah melakukan aski tersebut
                     temp_action = GameAction("row", (j,i)) #lakukan aksi pada bagian itu
-                    print(temp_action)
                     temp_state_action = self.__modify_state(parrent_state, temp_action)
                     #lanjut ke kedalaman berikutnya
                     result = self.__maximum(temp_state_action, temp_action, kedalaman-1, minimum_score)
@@ -53,7 +50,6 @@ class RandomBot(Bot):
                         b = i
 
         #untuk setiap col akan dicek mana yang belum diberi garis
-        print("col")
         i = 0
         j = 0
         for i in range (3) :
@@ -64,7 +60,6 @@ class RandomBot(Bot):
                         return (GameAction("col", (j,i)))
                     #simpan aksi yang dilakukan dan state setelah melakukan aski tersebut
                     temp_action = GameAction("col", (j,i)) #lakukan aksi pada bagian itu
-                    print(temp_action)
                     temp_state_action = self.__modify_state(parrent_state, temp_action)
                     result = self.__maximum(temp_state_action, temp_action, kedalaman-1, minimum_score)
                     #akan dicek nilai costnya secara minimax
@@ -74,18 +69,13 @@ class RandomBot(Bot):
                         a = j
                         b = i
 
-        print("Ini aksi yang dilakukan si bot")
-        print(GameAction(status, (a,b)))
         return (GameAction(status, (a,b)))
 
     def __maximum(self, state_action: GameState, action: GameAction, kedalaman, alpha):
         parrent_state = (state_action)
-        print("maximum")
 
         if kedalaman == 0:
-            print("mencari nilai cost")
             cost = self.__obj_func(parrent_state, action)
-            print("cost =", cost)
             return (cost) #mengembalikan nilai cost pada keadaan sekarang
 
         #Menyimpan informasi initial maximum score dan aksi yang nanti akan dikerjakan si bot
@@ -94,7 +84,6 @@ class RandomBot(Bot):
         col_status = np.array(parrent_state.col_status)
 
         #untuk setiap row akan dicek mana yang belum diberi garis
-        print("row")
         i = 0
         j = 0
         for i in range (4) :
@@ -102,7 +91,6 @@ class RandomBot(Bot):
                 if ((row_status[i][j]) == 0): #jika ditemukan bagian belum digaris
                     #simpan aksi yang dilakukan dan state setelah melakukan aski tersebut
                     temp_action = GameAction("row", (j,i)) #lakukan aksi pada bagian itu
-                    print(temp_action)
                     temp_state_action = self.__modify_state(parrent_state, temp_action)
                     #lanjut ke kedalaman berikutnya
                     result = self.__minimum(temp_state_action, temp_action, kedalaman-1, maximum_score) #lakukan rekursif
@@ -113,7 +101,6 @@ class RandomBot(Bot):
                         return result
 
         #untuk setiap col akan dicek mana yang belum diberi garis
-        print("col")
         i = 0
         j = 0
         for i in range (3) :
@@ -121,7 +108,6 @@ class RandomBot(Bot):
                 if ((col_status[i][j]) == 0): #jika ditemukan bagian belum digaris
                     #simpan aksi yang dilakukan dan state setelah melakukan aski tersebut
                     temp_action = GameAction("col", (j,i)) #lakukan aksi pada bagian itu
-                    print(temp_action)
                     temp_state_action = self.__modify_state(parrent_state, temp_action)
                     #lanjut ke kedalaman berikutnya
                     result = self.__minimum(temp_state_action, temp_action, kedalaman-1, maximum_score) #lakukan rekursif
@@ -135,12 +121,9 @@ class RandomBot(Bot):
 
     def __minimum(self, state_action: GameState, action: GameAction, kedalaman, beta):
         parrent_state = (state_action)
-        print("minimum")
         
         if kedalaman == 0:
-            print("mencari nilai cost")
             cost = self.__obj_func(parrent_state, action)
-            print("cost =", cost)
             return (cost) #mengembalikan nilai cost pada keadaan sekarang
 
         #Menyimpan informasi initial maximum score dan aksi yang nanti akan dikerjakan si bot
@@ -149,7 +132,6 @@ class RandomBot(Bot):
         col_status = np.array(parrent_state.col_status)
         
         #untuk setiap row akan dicek mana yang belum diberi garis
-        print("row")
         i = 0
         j = 0
 
@@ -158,7 +140,6 @@ class RandomBot(Bot):
                 if ( (row_status[i][j]) == 0 ): #jika ditemukan bagian belum digaris
                     #simpan aksi yang dilakukan dan state setelah melakukan aski tersebut
                     temp_action = GameAction("row", (j,i)) #lakukan aksi pada bagian itu
-                    print(temp_action)
                     temp_state_action = self.__modify_state(parrent_state, temp_action)
                     #lanjut ke kedalaman berikutnya
                     result = self.__maximum(temp_state_action, temp_action, kedalaman-1, minimum_score) #lakukan rekursif
@@ -169,7 +150,6 @@ class RandomBot(Bot):
                         return result
 
         #untuk setiap col akan dicek mana yang belum diberi garis
-        print("col")
         i = 0
         j = 0
 
@@ -178,7 +158,6 @@ class RandomBot(Bot):
                 if ((col_status[i][j]) == 0): #jika ditemukan bagian belum digaris
                     #simpan aksi yang dilakukan dan state setelah melakukan aski tersebut
                     temp_action = GameAction("col", (j,i)) #lakukan aksi pada bagian itu
-                    print(temp_action)
                     temp_state_action = self.__modify_state(parrent_state, temp_action)
                     #lanjut ke kedalaman berikutnya
                     result = self.__maximum(temp_state_action, temp_action, kedalaman-1, minimum_score) #lakukan rekursif
