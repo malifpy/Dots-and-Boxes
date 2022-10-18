@@ -7,7 +7,7 @@ import numpy as np
 
 #disini untuk kedalaman pertama menggunaakn minimax dan kedalaman berikutnya baru menggunakan alpha beta
 
-class RandomBot(Bot):
+class Minimax(Bot):
     def __init__(self) -> None:
         super().__init__()
         print("Silakan masukkan kedalaman yang diinginkan (>0)")
