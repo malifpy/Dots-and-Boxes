@@ -212,7 +212,7 @@ class SA_Bot(Bot):
         if box_status == 4:
             return 2
         elif box_status == -4:
-            return 2
+            return -2
         elif box_status == 0:
             return 0
         else:
@@ -220,7 +220,7 @@ class SA_Bot(Bot):
             if box_side == 1:
                 return -1
             elif box_side == 2:
-                return -1
+                return 1
             else:
                 return (int(is_extra_turn) * 2 - 1) * 2
 
