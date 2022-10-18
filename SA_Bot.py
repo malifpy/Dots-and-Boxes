@@ -24,7 +24,6 @@ class SA_Bot(Bot):
         
         while (time.time() - start_time < self.__BOT_TIMEOUT_SECOND):
             iteration += 1
-            print(iteration)
             current_temp = self.__cooling_temp(current_temp)
             if (current_temp == 0):
                 return current_marking
@@ -169,6 +168,9 @@ class SA_Bot(Bot):
 
     """ Heuristic Functions """
     def __get_ud_status_row(self, state: GameState, position: Tuple[int, int]):
+        """
+        Mendapatkan status dari kotak diatas dan dibawah mark row
+        """
         [max_row, _] = state.board_status.shape
         (p_col, p_row) = position
 
@@ -185,6 +187,9 @@ class SA_Bot(Bot):
         return np.array([up_status, down_status])
 
     def __get_lr_status_col(self, state: GameState, position: Tuple[int, int]):
+        """
+        Mendapatkan status dari kotak di kiri dan di kanan mark col
+        """
         [_, max_col] = state.board_status.shape
         (p_col, p_row) = position
 
@@ -201,6 +206,10 @@ class SA_Bot(Bot):
         return np.array([left_status, right_status])
 
     def __has_extra_move(self, state: GameState, action: GameAction):
+        """
+        Menentukan apakah player akan mendapatkan extra turn ketika
+        melakukan aksi action pada kondisi state 
+        """
         if action.action_type == "row":
             adjacent_status = self.__get_ud_status_row(state, action.position)
         else:
@@ -209,6 +218,9 @@ class SA_Bot(Bot):
         return np.any(np.absolute(adjacent_status) + 1 == 4)
 
     def __box_eval(self, box_status: int, is_extra_turn: bool = False):
+        """
+        Menilai tiap kotak
+        """
         if box_status == 4:
             return 2
         elif box_status == -4:
@@ -218,16 +230,19 @@ class SA_Bot(Bot):
         else:
             box_side = abs(box_status)
             if box_side == 1:
-                return -1
+                return (int(is_extra_turn) * 2 - 1) * -1
             elif box_side == 2:
-                return 1
+                return (int(is_extra_turn) * 2 - 1) * 1
             else:
                 return (int(is_extra_turn) * 2 - 1) * 2
 
-    def __obj_func(self, modified_state: GameState, marked_position: GameAction):
-        has_extra_turn = self.__has_extra_move(modified_state, marked_position)
+    def __obj_func(self, original_state: GameState, marked_position: GameAction):
+        """
+        Menjumlahkan nilai tiap kotak
+        """
+        has_extra_turn = self.__has_extra_move(original_state, marked_position)
         total_score = 0
-        for box_status_row in modified_state.board_status:
+        for box_status_row in original_state.board_status:
             for box_status in box_status_row:
                 total_score += self.__box_eval(box_status, has_extra_turn)
         return total_score

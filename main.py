@@ -10,8 +10,9 @@ from Bot import Bot
 from GameState import GameState
 
 # * Import your bot
-from RandomBot import RandomBot
+# from RandomBot import RandomBot
 from SA_Bot import SA_Bot
+from Minimax import Minimax
 
 size_of_board = 600
 number_of_dots = 4
@@ -316,5 +317,6 @@ if __name__ == "__main__":
     BvB mode: game_instance = Dots_and_Boxes(BotName(), BotName())
     """
     # game_instance = Dots_and_Boxes(None, RandomBot())
-    game_instance = Dots_and_Boxes(None, SA_Bot())
+    # game_instance = Dots_and_Boxes(None, SA_Bot())
+    game_instance = Dots_and_Boxes(SA_Bot(), Minimax())
     game_instance.mainloop()
