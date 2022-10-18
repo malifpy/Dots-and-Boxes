@@ -24,6 +24,7 @@ class SA_Bot(Bot):
         
         while (time.time() - start_time < self.__BOT_TIMEOUT_SECOND):
             iteration += 1
+            print(iteration)
             current_temp = self.__cooling_temp(current_temp)
             if (current_temp == 0):
                 return current_marking
@@ -168,34 +169,34 @@ class SA_Bot(Bot):
 
     """ Heuristic Functions """
     def __get_ud_status_row(self, state: GameState, position: Tuple[int, int]):
-        [max_y, max_x] = state.board_status.shape
-        (px, py) = position
+        [max_row, _] = state.board_status.shape
+        (p_col, p_row) = position
 
-        if (py - 1 < 0):
+        if (p_row - 1 < 0):
             up_status = np.nan
         else:
-            up_status = state.board_status[py - 1][px]
+            up_status = state.board_status[p_row - 1][p_col]
 
-        if (py >= max_y):
+        if (p_row >= max_row):
             down_status = np.nan
         else:
-            down_status = state.board_status[py][px]
+            down_status = state.board_status[p_row][p_col]
 
         return np.array([up_status, down_status])
 
     def __get_lr_status_col(self, state: GameState, position: Tuple[int, int]):
-        [max_y, max_x] = state.board_status.shape
-        (px, py) = position
+        [_, max_col] = state.board_status.shape
+        (p_col, p_row) = position
 
-        if (px - 1 < 0):
+        if (p_col - 1 < 0):
             left_status = np.nan
         else:
-            left_status = state.board_status[py][px - 1]
+            left_status = state.board_status[p_row][p_col - 1]
 
-        if (px >= max_x):
+        if (p_col >= max_col):
             right_status = np.nan
         else:
-            right_status = state.board_status[py][px]
+            right_status = state.board_status[p_row][p_col]
             
         return np.array([left_status, right_status])
 
