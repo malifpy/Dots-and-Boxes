@@ -11,11 +11,10 @@ class SA_Bot(Bot):
     def __init__(self) -> None:
         super().__init__()
         self.__BOT_TIMEOUT_SECOND = 5
-        self.__INIT_TEMP = 100
+        self.__INIT_TEMP = 10000
         self.__ROWCOL_PROBABILITY = 0.43
 
     def get_action(self, state: GameState) -> GameAction:
-        iteration = 0
         current_temp = self.__INIT_TEMP
         start_time = time.time()
 
@@ -23,12 +22,10 @@ class SA_Bot(Bot):
         current_state = self.__modify_state(state, current_marking)
         
         while (time.time() - start_time < self.__BOT_TIMEOUT_SECOND):
-            iteration += 1
-            print(iteration)
             current_temp = self.__cooling_temp(current_temp)
             if (current_temp == 0):
                 return current_marking
-
+                
             neighbor_marking = self.__local_random_marking(state, current_marking)
             neighbor_state = self.__modify_state(state, neighbor_marking)
             E_neighbor = self.__obj_func(neighbor_state, neighbor_marking)
@@ -37,21 +34,35 @@ class SA_Bot(Bot):
             delta_E = E_neighbor - E_current
             if (delta_E > 0):
                 current_marking = neighbor_marking
-            elif 2.71828 ** round(delta_E / current_temp, 3) > random.randrange(0, 1):
+                current_state = neighbor_state
+            elif 2.71828 ** round(delta_E / current_temp, 3) > random.random():
                 current_marking = neighbor_marking
+                current_state = neighbor_state
         
         return current_marking
 
     def __modify_state(self, state: GameState, action: GameAction) -> GameState:
         modified_state = copy.deepcopy(state)
-        (col, row) = action.position
-
+        _ = self.__make_no_taken_box_abs(modified_state.board_status)
+        
+        (col_status, row_status) = action.position
         if (action.action_type == "row"):
-            modified_state.row_status[row][col] = 1
+            modified_state.row_status[row_status][col_status] = 1
+            modified_state.board_status[(row_status - 1) if (row_status - 1) >= 0 else 0][col_status] += 1 if (row_status - 1) >= 0 else 0 
+            modified_state.board_status[row_status if row_status < 3 else 2][col_status] += 1 if row_status < 3 else 0 
         elif (action.action_type == "col"):
-            modified_state.col_status[row][col] = 1
+            modified_state.col_status[row_status][col_status] = 1
+            modified_state.board_status[row_status][(col_status - 1) if (col_status - 1) >= 0 else 0] += 1 if (col_status - 1) >= 0 else 0
+            modified_state.board_status[row_status][col_status if col_status < 3 else 2] += 1 if col_status < 3 else 0
 
         return modified_state
+
+    def __make_no_taken_box_abs(self, board: np.ndarray):
+        for row in range(3):
+            for col in range(3):
+                if (board[row][col] < 0 and board[row][col] != -4):
+                    board[row][col] = abs(board[row][col])
+        return None
 
     def __global_random_marking(self, state: GameState) -> GameAction:
         all_row_marked = self.__is_all_marked(state.row_status)
@@ -165,10 +176,13 @@ class SA_Bot(Bot):
 
     """ Cooling Schedule """
     def __cooling_temp(self, current_temp):
-        return current_temp / 2
+        return current_temp - 1
 
     """ Heuristic Functions """
     def __get_ud_status_row(self, state: GameState, position: Tuple[int, int]):
+        """
+        Mendapatkan status dari kotak diatas dan dibawah mark row
+        """
         [max_row, _] = state.board_status.shape
         (p_col, p_row) = position
 
@@ -185,6 +199,9 @@ class SA_Bot(Bot):
         return np.array([up_status, down_status])
 
     def __get_lr_status_col(self, state: GameState, position: Tuple[int, int]):
+        """
+        Mendapatkan status dari kotak di kiri dan di kanan mark col
+        """
         [_, max_col] = state.board_status.shape
         (p_col, p_row) = position
 
@@ -201,6 +218,10 @@ class SA_Bot(Bot):
         return np.array([left_status, right_status])
 
     def __has_extra_move(self, state: GameState, action: GameAction):
+        """
+        Menentukan apakah player akan mendapatkan extra turn ketika
+        melakukan aksi action pada kondisi state 
+        """
         if action.action_type == "row":
             adjacent_status = self.__get_ud_status_row(state, action.position)
         else:
@@ -209,25 +230,30 @@ class SA_Bot(Bot):
         return np.any(np.absolute(adjacent_status) + 1 == 4)
 
     def __box_eval(self, box_status: int, is_extra_turn: bool = False):
+        """
+        Menilai tiap kotak
+        """
         if box_status == 4:
-            return 2
+            return 3
         elif box_status == -4:
-            return -2
+            return -3
         elif box_status == 0:
             return 0
         else:
-            box_side = abs(box_status)
-            if box_side == 1:
-                return -1
-            elif box_side == 2:
-                return 1
+            if box_status == 1:
+                return (int(is_extra_turn) * 2 - 1) * -1
+            elif box_status == 2:
+                return (int(is_extra_turn) * 2 - 1) * 1
             else:
                 return (int(is_extra_turn) * 2 - 1) * 2
 
-    def __obj_func(self, modified_state: GameState, marked_position: GameAction):
-        has_extra_turn = self.__has_extra_move(modified_state, marked_position)
+    def __obj_func(self, original_state: GameState, marked_position: GameAction):
+        """
+        Menjumlahkan nilai tiap kotak
+        """
+        has_extra_turn = self.__has_extra_move(original_state, marked_position)
         total_score = 0
-        for box_status_row in modified_state.board_status:
+        for box_status_row in original_state.board_status:
             for box_status in box_status_row:
                 total_score += self.__box_eval(box_status, has_extra_turn)
         return total_score
