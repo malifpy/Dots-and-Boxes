@@ -18,30 +18,29 @@ class RandomBot(Bot):
 
     def get_action(self, state: GameState) -> GameAction:
         #Menyimpan informasi parrent state (parent tree)
-        parrent_state = copy.deepcopy(state)
-        print("state parrent")
+        parrent_state = (state)
         print(parrent_state)
         kedalaman = self.__kedalaman
         #Menyimpan informasi initial minimum score dan aksi yang nanti akan dikerjakan si bot
         minimum_score = 1000
+        row_status = np.array(parrent_state.row_status)
+        col_status = np.array(parrent_state.col_status)
         status = ""
         a = 0
         b = 0
 
         #untuk setiap row akan dicek mana yang belum diberi garis
-        status = "row"
-        print(status)
+        print("row")
         i = 0
         j = 0
-        print(i,j)
         for i in range (4) :
             for j in range (3) :
-                if (parrent_state.row_status[i][j] == 0): #jika ditemukan bagian belum digaris
+                if ((row_status[i][j]) == 0): #jika ditemukan bagian belum digaris
                     #dicek kedalaman tree (ini bakal ada perubahan)
                     if kedalaman < 1 :
-                        return (GameAction(status, (i,j)))
+                        return (GameAction("row", (j,i)))
                     #simpan aksi yang dilakukan dan state setelah melakukan aski tersebut
-                    temp_action = GameAction(status, (i,j)) #lakukan aksi pada bagian itu
+                    temp_action = GameAction("row", (j,i)) #lakukan aksi pada bagian itu
                     print(temp_action)
                     temp_state_action = self.__modify_state(parrent_state, temp_action)
                     #lanjut ke kedalaman berikutnya
@@ -49,58 +48,60 @@ class RandomBot(Bot):
                     #akan dicek nilai costnya secara minimax
                     if minimum_score > result :
                         minimum_score = result
-                        a = i
-                        b = j
+                        status = "row"
+                        a = j
+                        b = i
 
         #untuk setiap col akan dicek mana yang belum diberi garis
-        status = "col"
-        print(status)
+        print("col")
         i = 0
         j = 0
-        print(i,j)
         for i in range (3) :
             for j in range (4) :
-                if (parrent_state.col_status[i][j] == 0): #jika ditemukan bagian belum digaris
+                if ((col_status[i][j]) == 0): #jika ditemukan bagian belum digaris
                     #dicek kedalaman tree (ini bakal ada perubahan)
                     if kedalaman < 1 :
-                        return (GameAction(status, (i,j)))
+                        return (GameAction("col", (j,i)))
                     #simpan aksi yang dilakukan dan state setelah melakukan aski tersebut
-                    temp_action = GameAction(status, (i,j)) #lakukan aksi pada bagian itu
+                    temp_action = GameAction("col", (j,i)) #lakukan aksi pada bagian itu
                     print(temp_action)
                     temp_state_action = self.__modify_state(parrent_state, temp_action)
                     result = self.__maximum(temp_state_action, temp_action, kedalaman-1, minimum_score)
                     #akan dicek nilai costnya secara minimax
                     if minimum_score > result :
                         minimum_score = result
-                        a = i
-                        b = j
+                        status = "col"
+                        a = j
+                        b = i
 
+        print("Ini aksi yang dilakukan si bot")
+        print(GameAction(status, (a,b)))
         return (GameAction(status, (a,b)))
 
     def __maximum(self, state_action: GameState, action: GameAction, kedalaman, alpha):
-        parrent_state = copy.deepcopy(state_action)
+        parrent_state = (state_action)
         print("maximum")
-        print("state parrent")
-        print(parrent_state)
 
         if kedalaman == 0:
-            return (self.__obj_func(parrent_state, action)) #mengembalikan nilai cost pada keadaan sekarang
+            print("mencari nilai cost")
+            cost = self.__obj_func(parrent_state, action)
+            print("cost =", cost)
+            return (cost) #mengembalikan nilai cost pada keadaan sekarang
 
         #Menyimpan informasi initial maximum score dan aksi yang nanti akan dikerjakan si bot
         maximum_score = -1000
-        status = ""
-        
+        row_status = np.array(parrent_state.row_status)
+        col_status = np.array(parrent_state.col_status)
+
         #untuk setiap row akan dicek mana yang belum diberi garis
-        status = "row"
-        print(status)
+        print("row")
         i = 0
         j = 0
-        print(i,j)
         for i in range (4) :
             for j in range (3) :
-                if (parrent_state.row_status[i][j] == 0): #jika ditemukan bagian belum digaris
+                if ((row_status[i][j]) == 0): #jika ditemukan bagian belum digaris
                     #simpan aksi yang dilakukan dan state setelah melakukan aski tersebut
-                    temp_action = GameAction(status, (i,j)) #lakukan aksi pada bagian itu
+                    temp_action = GameAction("row", (j,i)) #lakukan aksi pada bagian itu
                     print(temp_action)
                     temp_state_action = self.__modify_state(parrent_state, temp_action)
                     #lanjut ke kedalaman berikutnya
@@ -112,16 +113,14 @@ class RandomBot(Bot):
                         return result
 
         #untuk setiap col akan dicek mana yang belum diberi garis
-        status = "col"
-        print(status)
+        print("col")
         i = 0
         j = 0
-        print(i,j)
         for i in range (3) :
             for j in range (4) :
-                if (parrent_state.col_status[i][j] == 0): #jika ditemukan bagian belum digaris
+                if ((col_status[i][j]) == 0): #jika ditemukan bagian belum digaris
                     #simpan aksi yang dilakukan dan state setelah melakukan aski tersebut
-                    temp_action = GameAction(status, (i,j)) #lakukan aksi pada bagian itu
+                    temp_action = GameAction("col", (j,i)) #lakukan aksi pada bagian itu
                     print(temp_action)
                     temp_state_action = self.__modify_state(parrent_state, temp_action)
                     #lanjut ke kedalaman berikutnya
@@ -135,28 +134,30 @@ class RandomBot(Bot):
         return (maximum_score)
 
     def __minimum(self, state_action: GameState, action: GameAction, kedalaman, beta):
-        parrent_state = copy.deepcopy(state_action)
+        parrent_state = (state_action)
         print("minimum")
-        print("state parrent")
-        print(parrent_state)
-
+        
         if kedalaman == 0:
-            return (self.__obj_func(parrent_state, action)) #mengembalikan nilai cost pada keadaan sekarang
+            print("mencari nilai cost")
+            cost = self.__obj_func(parrent_state, action)
+            print("cost =", cost)
+            return (cost) #mengembalikan nilai cost pada keadaan sekarang
 
         #Menyimpan informasi initial maximum score dan aksi yang nanti akan dikerjakan si bot
         minimum_score = 1000
-        status = ""
+        row_status = np.array(parrent_state.row_status)
+        col_status = np.array(parrent_state.col_status)
         
         #untuk setiap row akan dicek mana yang belum diberi garis
-        status = "row"
+        print("row")
         i = 0
         j = 0
-        print(i,j)
+
         for i in range (4) :
             for j in range (3) :
-                if (parrent_state.row_status[i][j] == 0): #jika ditemukan bagian belum digaris
+                if ( (row_status[i][j]) == 0 ): #jika ditemukan bagian belum digaris
                     #simpan aksi yang dilakukan dan state setelah melakukan aski tersebut
-                    temp_action = GameAction(status, (i,j)) #lakukan aksi pada bagian itu
+                    temp_action = GameAction("row", (j,i)) #lakukan aksi pada bagian itu
                     print(temp_action)
                     temp_state_action = self.__modify_state(parrent_state, temp_action)
                     #lanjut ke kedalaman berikutnya
@@ -168,15 +169,15 @@ class RandomBot(Bot):
                         return result
 
         #untuk setiap col akan dicek mana yang belum diberi garis
-        status = "col"
+        print("col")
         i = 0
         j = 0
-        print(i,j)
+
         for i in range (3) :
             for j in range (4) :
-                if (parrent_state.col_status[i][j] == 0): #jika ditemukan bagian belum digaris
+                if ((col_status[i][j]) == 0): #jika ditemukan bagian belum digaris
                     #simpan aksi yang dilakukan dan state setelah melakukan aski tersebut
-                    temp_action = GameAction(status, (i,j)) #lakukan aksi pada bagian itu
+                    temp_action = GameAction("col", (j,i)) #lakukan aksi pada bagian itu
                     print(temp_action)
                     temp_state_action = self.__modify_state(parrent_state, temp_action)
                     #lanjut ke kedalaman berikutnya
@@ -190,68 +191,62 @@ class RandomBot(Bot):
         return (minimum_score)
 
     def __modify_state(self, state: GameState, action: GameAction) -> GameState:
-        modfied_state = copy.deepcopy(state)
-        x = action.position[0]
-        y = action.position[1]
-        if (action.action_type == "row"):
-            modfied_state.row_status[x][y] = 1
-        elif (action.action_type == "col"):
-            modfied_state.col_status[x][y] = 1
-        return modfied_state
+        modified_state = (state)
+        (col, row) = action.position
 
-    """ Heuristic Functions """
+        if (action.action_type == "row"):
+            modified_state.row_status[row][col] = 1
+        elif (action.action_type == "col"):
+            modified_state.col_status[row][col] = 1
+
+        return modified_state
+
+        """ Heuristic Functions """
     def __get_ud_status_row(self, state: GameState, position: Tuple[int, int]):
-        [max_y, max_x] = state.board_status.shape
-        (px, py) = position
-        print("posisi aksi di get ud status", position)
-        #print(position)
-        if (py - 1 < 0):
+        [max_row, _] = state.board_status.shape
+        (p_col, p_row) = position
+
+        if (p_row - 1 < 0):
             up_status = np.nan
         else:
-            up_status = state.board_status[px][py - 1]
+            up_status = state.board_status[p_row - 1][p_col]
 
-        if (py >= max_y):
+        if (p_row >= max_row):
             down_status = np.nan
         else:
-            down_status = state.board_status[px][py]
+            down_status = state.board_status[p_row][p_col]
 
-        #print("status row", up_status, down_status)
         return np.array([up_status, down_status])
 
     def __get_lr_status_col(self, state: GameState, position: Tuple[int, int]):
-        [max_y, max_x] = state.board_status.shape
-        (px, py) = position
-        #print(position)
-        if (px - 1 < 0):
+        [_, max_col] = state.board_status.shape
+        (p_col, p_row) = position
+
+        if (p_col - 1 < 0):
             left_status = np.nan
         else:
-            left_status = state.board_status[px - 1][py]
+            left_status = state.board_status[p_row][p_col - 1]
 
-        if (px >= max_x):
+        if (p_col >= max_col):
             right_status = np.nan
         else:
-            right_status = state.board_status[px][py]
-
-        #print("status col", left_status, right_status)
+            right_status = state.board_status[p_row][p_col]
+            
         return np.array([left_status, right_status])
 
     def __has_extra_move(self, state: GameState, action: GameAction):
-        #print(action)
         if action.action_type == "row":
-            #print("menjalankan fungsi __get_ud_status_row")
             adjacent_status = self.__get_ud_status_row(state, action.position)
         else:
-            #print("menjalankan fungsi __get_lr_status_col")
             adjacent_status = self.__get_lr_status_col(state, action.position)
 
-        #print(np.any(np.absolute(adjacent_status) + 1 == 4))
         return np.any(np.absolute(adjacent_status) + 1 == 4)
 
     def __box_eval(self, box_status: int, is_extra_turn: bool = False):
         if box_status == 4:
             return 2
         elif box_status == -4:
-            return 2
+            return -2
         elif box_status == 0:
             return 0
         else:
@@ -259,17 +254,14 @@ class RandomBot(Bot):
             if box_side == 1:
                 return -1
             elif box_side == 2:
-                return -1
+                return 1
             else:
                 return (int(is_extra_turn) * 2 - 1) * 2
 
     def __obj_func(self, modified_state: GameState, marked_position: GameAction):
-        #print(marked_position)
-        #print("menjalankan fungsi __has_extra_move")
         has_extra_turn = self.__has_extra_move(modified_state, marked_position)
         total_score = 0
         for box_status_row in modified_state.board_status:
             for box_status in box_status_row:
-                #print("menjalankan fungsi __box_eval")
                 total_score += self.__box_eval(box_status, has_extra_turn)
         return total_score
