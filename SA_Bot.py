@@ -72,7 +72,7 @@ class SA_Bot(Bot):
         return None
 
     def __global_random_marking(self, state: GameState) -> GameAction:
-        """ Select an any available edges/markings randomly """
+        """ Return a random available edge/marking """
 
         all_row_marked = self.__is_all_marked(state.row_status)
         all_col_marked = self.__is_all_marked(state.col_status)
@@ -93,13 +93,13 @@ class SA_Bot(Bot):
             return self.__global_random_col_marking(state)
 
     def __global_random_row_marking(self, state: GameState) -> GameAction:
-        """ Return a row marking-action of any available edges """
+        """ Return a row marking-action of any available edges of row """
 
         position = self.__global_random_position_with_zero_value(state.row_status)
         return GameAction("row", position)
 
     def __global_random_col_marking(self, state: GameState) -> GameAction:
-        """ Return a column marking-action of any available edges """
+        """ Return a column marking-action of any available edges of column """
 
         position = self.__global_random_position_with_zero_value(state.col_status)
         return GameAction("col", position)
@@ -121,7 +121,7 @@ class SA_Bot(Bot):
 
     def __local_random_marking(self, state: GameState, current_marking: GameAction) -> GameAction:
         """
-            Return an any neighbor-marking actions available of current_marking randomly.
+            Return a randomly neighbor-marking action available of current_marking.
             Neighbor-marking of current_marking is defined as legal clockwise and counterclockwise rotation "sweeping" areas 
         """
 
