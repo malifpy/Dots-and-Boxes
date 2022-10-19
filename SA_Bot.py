@@ -63,7 +63,7 @@ class SA_Bot(Bot):
         return modified_state
 
     def __make_no_taken_box_abs(self, board: np.ndarray):
-        """ Convert each board element value into absolute value """
+        """ Convert some board element values into absolute value """
 
         for row in range(3):
             for col in range(3):
