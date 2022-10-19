@@ -11,7 +11,7 @@ class SA_Bot(Bot):
     def __init__(self) -> None:
         super().__init__()
         self.__BOT_TIMEOUT_SECOND = 5
-        self.__INIT_TEMP = 10000
+        self.__INIT_TEMP = 100000
         self.__ROWCOL_PROBABILITY = 0.43
 
     def get_action(self, state: GameState) -> GameAction:
@@ -42,6 +42,11 @@ class SA_Bot(Bot):
         return current_marking
 
     def __modify_state(self, state: GameState, action: GameAction) -> GameState:
+        """ 
+        Create a new-copy GameState of a given state which a new state is evaluated by action taken to, 
+        i.e., its col_status/row_status and board_status--used for calculating objective/heuristic function.     
+        """
+        
         modified_state = copy.deepcopy(state)
         _ = self.__make_no_taken_box_abs(modified_state.board_status)
         
@@ -58,6 +63,8 @@ class SA_Bot(Bot):
         return modified_state
 
     def __make_no_taken_box_abs(self, board: np.ndarray):
+        """ Convert each board element value into absolute value """
+
         for row in range(3):
             for col in range(3):
                 if (board[row][col] < 0 and board[row][col] != -4):
@@ -65,6 +72,8 @@ class SA_Bot(Bot):
         return None
 
     def __global_random_marking(self, state: GameState) -> GameAction:
+        """ Select an any available edges/markings randomly """
+
         all_row_marked = self.__is_all_marked(state.row_status)
         all_col_marked = self.__is_all_marked(state.col_status)
 
@@ -76,22 +85,29 @@ class SA_Bot(Bot):
             return self.__global_random_row_marking(state)
 
     def __global_get_random_marking(self, state: GameState) -> GameAction:
+        """ Randomly selecting either row or column marking-action  """
+
         if random.random() < 0.5:
             return self.__global_random_row_marking(state)
         else:
             return self.__global_random_col_marking(state)
 
     def __global_random_row_marking(self, state: GameState) -> GameAction:
+        """ Return a row marking-action of any available edges """
+
         position = self.__global_random_position_with_zero_value(state.row_status)
         return GameAction("row", position)
 
     def __global_random_col_marking(self, state: GameState) -> GameAction:
+        """ Return a column marking-action of any available edges """
+
         position = self.__global_random_position_with_zero_value(state.col_status)
         return GameAction("col", position)
 
     def __global_random_position_with_zero_value(self, matrix_status: np.ndarray):
-        [ny, nx] = matrix_status.shape
+        """ Return an available point/edge of a given matrix_status """
 
+        [ny, nx] = matrix_status.shape
         x = -1
         y = -1
         valid = False
@@ -103,28 +119,30 @@ class SA_Bot(Bot):
         
         return (x, y)
 
-    def __local_random_marking(self, state: GameState, marking_ref: GameAction) -> GameAction:
+    def __local_random_marking(self, state: GameState, current_marking: GameAction) -> GameAction:
         """
-        Return any neighbor-marking action available of current_marking.
+            Return an any neighbor-marking actions available of current_marking randomly.
+            Neighbor-marking of current_marking is defined as legal clockwise and counterclockwise rotation "sweeping" areas 
+        """
 
-        Neighbor-marking of current_marking is defined as legal clockwise and counterclockwise rotation "sweeping" areas 
-        """
-        if (marking_ref.action_type == "row"):
+        if (current_marking.action_type == "row"):
             if (random.random() >= self.__ROWCOL_PROBABILITY):
-                return self.__local_random_row_marking(state.row_status, marking_ref)
+                return self.__local_random_row_marking(state.row_status, current_marking)
             else:
-                return self.__local_random_col_marking(state.col_status, marking_ref)         
+                return self.__local_random_col_marking(state.col_status, current_marking)         
 
         else:
             if (random.random() >= self.__ROWCOL_PROBABILITY):
-                return self.__local_random_col_marking(state.col_status, marking_ref)
+                return self.__local_random_col_marking(state.col_status, current_marking)
             else:
-                return self.__local_random_row_marking(state.row_status, marking_ref)
+                return self.__local_random_row_marking(state.row_status, current_marking)
 
-    def __local_random_row_marking(self, row_state: np.ndarray, marking_ref: GameAction):
-        (pos_x, pos_y) = copy.deepcopy(marking_ref.position)
+    def __local_random_row_marking(self, row_state: np.ndarray, current_marking: GameAction) -> GameAction:
+        """ Return a row marking-action of any legal available edges """
 
-        if (marking_ref.action_type == "row"):
+        (pos_x, pos_y) = copy.deepcopy(current_marking.position)
+
+        if (current_marking.action_type == "row"):
             init_x = pos_x - 1 if (pos_x - 1) >= 0 else 0
             max_x = pos_x + 1 if (pos_x + 1) <= 2 else 2
             init_y = pos_y - 1 if (pos_y - 1) >= 0 else 0
@@ -136,7 +154,7 @@ class SA_Bot(Bot):
             max_y = pos_y + 2 if (pos_y + 2) <= 3 else 3
             
         if (self.__is_all_marked(row_state[init_y: max_y + 1, init_x: max_x + 1] == 1)):
-            return marking_ref
+            return current_marking
 
         valid = False
         while not valid:
@@ -146,10 +164,12 @@ class SA_Bot(Bot):
     
         return GameAction("row", (pos_x, pos_y))
 
-    def __local_random_col_marking(self, col_state: np.ndarray, marking_ref: GameAction):
-        (pos_x, pos_y) = copy.deepcopy(marking_ref.position)
+    def __local_random_col_marking(self, col_state: np.ndarray, current_marking: GameAction) -> GameAction:
+        """ Return a column marking-action of any legal available edges """
 
-        if (marking_ref.action_type == "row"):
+        (pos_x, pos_y) = copy.deepcopy(current_marking.position)
+
+        if (current_marking.action_type == "row"):
             init_x = pos_x - 1 if (pos_x - 1) >= 0 else 0
             max_x = pos_x + 2 if (pos_x + 2) <= 3 else 3
             init_y = pos_y - 1 if (pos_y - 1) >= 0 else 0
@@ -161,7 +181,7 @@ class SA_Bot(Bot):
             max_y = pos_y + 1 if (pos_y + 1) <= 2 else 2
         
         if (self.__is_all_marked(col_state[init_y: max_y + 1, init_x: max_x + 1] == 1)):
-            return marking_ref
+            return current_marking
         
         valid = False
         while not valid:
@@ -171,14 +191,17 @@ class SA_Bot(Bot):
     
         return GameAction("col", (pos_x, pos_y))
 
-    def __is_all_marked(self, matrix_status: np.ndarray):
+    def __is_all_marked(self, matrix_status: np.ndarray) -> bool:
+        """ Check whether a given matrix_status is all marked """
+
         return np.all(matrix_status == 1)
 
-    """ Cooling Schedule """
     def __cooling_temp(self, current_temp):
-        return current_temp - 1
+        return current_temp / 2
 
+    
     """ Heuristic Functions """
+
     def __get_ud_status_row(self, state: GameState, position: Tuple[int, int]):
         """
         Mendapatkan status dari kotak diatas dan dibawah mark row
@@ -234,9 +257,9 @@ class SA_Bot(Bot):
         Menilai tiap kotak
         """
         if box_status == 4:
-            return 3
+            return 2
         elif box_status == -4:
-            return -3
+            return -2
         elif box_status == 0:
             return 0
         else:
