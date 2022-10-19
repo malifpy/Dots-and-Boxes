@@ -10,7 +10,6 @@ from Bot import Bot
 from GameState import GameState
 
 # * Import your bot
-# from RandomBot import RandomBot
 from SA_Bot import SA_Bot
 from Minimax import Minimax
 
@@ -316,7 +315,7 @@ if __name__ == "__main__":
     PvB mode: game_instance = Dots_and_Boxes(None, BotName()) or game_instance = Dots_and_Boxes(BotName(), None)
     BvB mode: game_instance = Dots_and_Boxes(BotName(), BotName())
     """
-    game_instance = Dots_and_Boxes(None, Minimax())
+    # game_instance = Dots_and_Boxes(None, Minimax())
     # game_instance = Dots_and_Boxes(None, SA_Bot())
-    # game_instance = Dots_and_Boxes(SA_Bot(), Minimax())
+    game_instance = Dots_and_Boxes(SA_Bot(), Minimax())
     game_instance.mainloop()

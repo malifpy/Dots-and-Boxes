@@ -82,9 +82,7 @@ def box_eval_old(box_status: int, is_extra_turn: bool = False):
     else:
         if box_status == 1:
             return -7
-            # return -2000
         elif box_status == 2:
-            # return 2000
             return 7
         else:
             return (int(is_extra_turn) * 2 - 1) * 20
@@ -93,16 +91,10 @@ def obj_func(original_state: GameState, marked_position: GameAction):
     """
     Menjumlahkan nilai tiap kotak
     """
-    sum_hist = ""
     has_extra_turn = has_extra_move(original_state, marked_position)
     total_score = 0
     marked_state = modify_state(original_state, marked_position)
     for box_status_row in marked_state.board_status:
-        sum_list = []
         for box_status in box_status_row:
             total_score += box_eval(box_status, has_extra_turn)
-            # sum_hist += f" + {box_eval(box_status, has_extra_turn)}"
-            sum_list += [str(box_eval(box_status, has_extra_turn))]
-        sum_hist += " + ".join(sum_list) + "\n"
-    # return total_score, sum_hist
     return total_score

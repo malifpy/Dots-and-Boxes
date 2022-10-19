@@ -4,7 +4,6 @@ from GameState import GameState
 from typing import Tuple
 from Heuristic_Value import *
 from Support_Function import *
-import copy
 import time
 import numpy as np
 
@@ -15,9 +14,6 @@ class Minimax(Bot):
         super().__init__()
         print("Silakan masukkan kedalaman yang diinginkan (>0)")
         self.__kedalaman = 4
-        # while (self.__kedalaman <= 0 ) :
-        #     print("Silakan masukkan kedalaman yang diinginkan (>0)")
-        #     self.__kedalaman = int(input())
 
     def get_action(self, state: GameState) -> GameAction:
         start_time = time.time()

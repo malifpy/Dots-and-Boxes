@@ -2,6 +2,7 @@ from GameAction import GameAction
 from GameState import GameState
 from Heuristic_Value import *
 from Support_Function import *
+from typing import Tuple
 import random
 import numpy as np
 import copy
@@ -76,79 +77,12 @@ def global_random_position_with_zero_value(matrix_status: np.ndarray):
     
     return (x, y)
 
-# def local_random_marking(state: GameState, current_marking: GameAction) -> GameAction:
-#     """
-#         Return a randomly neighbor-marking action available of current_marking.
-#         Neighbor-marking of current_marking is defined as legal clockwise and counterclockwise rotation "sweeping" areas 
-#     """
-#     if (current_marking.action_type == "row"):
-#         if (random.random() >= 0.43):
-#             return local_random_row_marking(state.row_status, current_marking)
-#         else:
-#             return local_random_col_marking(state.col_status, current_marking)         
-#     else:
-#         if (random.random() >= 0.43):
-#             return local_random_col_marking(state.col_status, current_marking)
-#         else:
-#             return local_random_row_marking(state.row_status, current_marking)
-#
-def local_random_row_marking(row_state: np.ndarray, current_marking: GameAction) -> GameAction:
-    """ Return a row marking-action of any legal available edges """
-    (pos_x, pos_y) = copy.deepcopy(current_marking.position)
-    if (current_marking.action_type == "row"):
-        init_x = pos_x - 1 if (pos_x - 1) >= 0 else 0
-        max_x = pos_x + 1 if (pos_x + 1) <= 2 else 2
-        init_y = pos_y - 1 if (pos_y - 1) >= 0 else 0
-        max_y = pos_y + 1 if (pos_y + 1) <= 3 else 3
-    else:
-        init_x = pos_x - 1 if (pos_x - 1) >= 0 else 0
-        max_x = pos_x if pos_x <= 2 else 2
-        init_y = pos_y - 1 if (pos_y - 1) >= 0 else 0
-        max_y = pos_y + 2 if (pos_y + 2) <= 3 else 3
-        
-    if (is_all_marked(row_state[init_y: max_y + 1, init_x: max_x + 1] == 1)):
-        return current_marking
-    valid = False
-    while not valid:
-        pos_x = random.randint(init_x, max_x)
-        pos_y = random.randint(init_y, max_y)
-        valid = row_state[pos_y, pos_x] == 0
-    
-    return GameAction("row", (pos_x, pos_y))
-
-def local_random_col_marking(col_state: np.ndarray, current_marking: GameAction) -> GameAction:
-    """ Return a column marking-action of any legal available edges """
-    (pos_x, pos_y) = copy.deepcopy(current_marking.position)
-    if (current_marking.action_type == "row"):
-        init_x = pos_x - 1 if (pos_x - 1) >= 0 else 0
-        max_x = pos_x + 2 if (pos_x + 2) <= 3 else 3
-        init_y = pos_y - 1 if (pos_y - 1) >= 0 else 0
-        max_y = pos_y if pos_y <= 2 else 2
-    else:
-        init_x = pos_x - 1 if (pos_x - 1) >= 0 else 0
-        max_x = pos_x + 1 if (pos_x + 1) <= 3 else 3
-        init_y = pos_y - 1 if (pos_y - 1) >= 0 else 0
-        max_y = pos_y + 1 if (pos_y + 1) <= 2 else 2
-    
-    if (is_all_marked(col_state[init_y: max_y + 1, init_x: max_x + 1] == 1)):
-        return current_marking
-    
-    valid = False
-    while not valid:
-        pos_x = random.randint(init_x, max_x)
-        pos_y = random.randint(init_y, max_y)
-        valid = col_state[pos_y, pos_x] == 0
-    
-    return GameAction("col", (pos_x, pos_y))
-
 def is_all_marked(matrix_status: np.ndarray) -> bool:
     """ Check whether a given matrix_status is all marked """
     return np.all(matrix_status == 1)
 
 def cooling_temp(current_temp):
     return current_temp - 5
-
-###
 
 def local_random_marking(state: GameState, current_marking: GameAction) -> GameAction:
     """
@@ -174,24 +108,18 @@ def box_positions_marking_at(current_marking: GameAction) -> list:
 def random_box(state: GameState, current_marking: GameAction, boxes_marking_at: list):
     selected_box_pos = random_box_pos_selection(boxes_marking_at)
     (bx, by) = selected_box_pos
-    print(f"selected box from 2 boxes: {(bx, by)}")
   
     if (current_marking.action_type == "row"):
         if (random.random() >= 0.33):
             # Random horizontally (by col)
-            print("id = 1")
             selected_box_pos = random_select_neigh_box(state.board_status, y_const = by)
         else: # Random vertically (by row)
-            print("id = 2")
             selected_box_pos = random_select_neigh_box(state.board_status, x_const = bx)
   
     else:
         if (random.random() >= 0.33):
-            # Random vertically (by row)
-            print("id = 3")
             selected_box_pos = random_select_neigh_box(state.board_status, x_const = bx)
         else: # Random horizontally (by col)                
-            print("id = 4")
             selected_box_pos = random_select_neigh_box(state.board_status, y_const = by)
           
     selected_marking = random_select_marking(state, selected_box_pos)
@@ -211,39 +139,23 @@ def random_select_neigh_box(board_status: np.ndarray, x_const = -1, y_const = -1
     board_copy = copy.deepcopy(board_status)
 
     box_valid = False
-    print(f"box_valid = {(box_valid)}")
     # Random horizontally
     if (x_const == -1):
-        print(f"horizontal")
         while not box_valid:
             x = random.randint(0, 2)
-            print(f"xconst, yconst = {(x_const, y_const)}")
-            print(f"x, y_const = {(x, y_const)}")
             box_valid = abs(board_copy[y_const, x]) != 4
-          
-            print(f"{(board_status)}")
-            print(f"box_valid = {(box_valid)}")
       
         return (x, y_const)
   
     # Random vertically
-    # elif (x_const and not y_const):
     else:
-        print(f"vertical")
         while not box_valid:
             y = random.randint(0, 2)
-            print(f"xconst, yconst = {(x_const, y_const)}")
-            print(f"x_const, y = {(x_const, y)}")
             box_valid = abs(board_copy[y, x_const]) != 4
-          
-            print(f"{(board_status)}")
-            print(f"box_valid = {(box_valid)}")
       
         return (x_const, y)
   
 def random_select_marking(state: GameState, box_position: Tuple[int, int]) -> list:
-    print(f"last_box: {(box_position)}")
-    print()
     (bx, by) = box_position
     (elmt_x, elmt_y) = (-1, -1)
 
