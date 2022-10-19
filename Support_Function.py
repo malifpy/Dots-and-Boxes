@@ -140,9 +140,125 @@ def local_random_col_marking(col_state: np.ndarray, current_marking: GameAction)
         valid = col_state[pos_y, pos_x] == 0
     
     return GameAction("col", (pos_x, pos_y))
+
 def is_all_marked(matrix_status: np.ndarray) -> bool:
     """ Check whether a given matrix_status is all marked """
     return np.all(matrix_status == 1)
 
 def cooling_temp(current_temp):
     return current_temp / 2
+
+# def local_random_marking(state: GameState, current_marking: GameAction) -> GameAction:
+#     """
+#     Return a randomly neighbor-marking action available of current_marking.
+#     """
+
+#     boxes_marking_at = box_positions_marking_at(current_marking)
+#     return random_box(state, current_marking, boxes_marking_at)
+
+# def box_positions_marking_at(current_marking: GameAction) -> list:
+#     (x, y) = current_marking.position
+#     box_points = []
+
+#     if (current_marking.action_type == "col"):
+#         box_points.append((x, y)) if x < 3 else None
+#         box_points.append((x-1, y)) if (x - 1) >= 0 else None
+#     else:
+#         box_points.append((x, y)) if y < 3 else None
+#         box_points.append((x, y-1)) if (y - 1) >= 0 else None
+    
+#     return box_points
+
+# def random_box(state: GameState, current_marking: GameAction, boxes_marking_at: list):
+#     selected_box_pos = random_box_pos_selection(boxes_marking_at)
+#     (bx, by) = selected_box_pos
+#     print(f"selected box from 2 boxes: {(bx, by)}")
+    
+#     if (current_marking.action_type == "row"):
+#         if (random.random() >= 0.33):
+#             # Random horizontally (by col)
+#             print("id = 1")
+#             selected_box_pos = random_select_neigh_box(state.board_status, y_const = by)
+#         else: # Random vertically (by row)
+#             print("id = 2")
+#             selected_box_pos = random_select_neigh_box(state.board_status, x_const = bx)
+    
+#     else:
+#         if (random.random() >= 0.33):
+#             # Random vertically (by row)
+#             print("id = 3")
+#             selected_box_pos = random_select_neigh_box(state.board_status, x_const = bx)
+#         else: # Random horizontally (by col)                
+#             print("id = 4")
+#             selected_box_pos = random_select_neigh_box(state.board_status, y_const = by)
+            
+#     selected_marking = random_select_marking(state, selected_box_pos)
+
+#     return selected_marking
+
+# def random_box_pos_selection(boxes_position: list) -> Tuple[int, int]:
+#     if (len(boxes_position) > 1):
+#         posisiton_selected = random.randrange(0, len(boxes_position))
+#         selected_box_pos = boxes_position[posisiton_selected]
+#     else: 
+#         selected_box_pos = boxes_position[0]
+    
+#     return selected_box_pos
+
+# def random_select_neigh_box(board_status: np.ndarray, x_const = None, y_const = None) -> Tuple[int, int]:
+#     board_copy = copy.deepcopy(board_status)
+
+#     box_valid = False
+#     print(f"box_valid = {(box_valid)}")
+#     # Random horizontally
+#     if (y_const and not x_const):
+#         print(f"horizontal")
+#         while not box_valid:
+#             x = random.randint(0, 2)
+#             print(f"xconst, yconst = {(x_const, y_const)}")
+#             print(f"x, y_const = {(x, y_const)}")
+#             box_valid = abs(board_copy[y_const, x]) != 4
+            
+#             print(f"{(board_status)}")
+#             print(f"box_valid = {(box_valid)}")
+        
+#         return (x, y_const)
+    
+#     # Random vertically
+#     elif (x_const and not y_const):
+#         print(f"vertical")
+#         while not box_valid:
+#             y = random.randint(0, 2)
+#             print(f"xconst, yconst = {(x_const, y_const)}")
+#             print(f"x_const, y = {(x_const, y)}")
+#             box_valid = abs(board_copy[y, x_const]) != 4
+            
+#             print(f"{(board_status)}")
+#             print(f"box_valid = {(box_valid)}")
+        
+#         return (x_const, y)
+    
+# def random_select_marking(state: GameState, box_position: Tuple[int, int]) -> list:
+#     print(f"last_box: {(box_position)}")
+#     print()
+#     (bx, by) = box_position
+#     (elmt_x, elmt_y) = (-1, -1)
+
+#     rows_position_in_box = [(bx, by), (bx, by + 1)]
+#     cols_position_in_box = [(bx, by), (bx + 1, by)]
+#     available_marking = []
+
+#     for pos in rows_position_in_box:
+#         (elmt_x, elmt_y) = pos
+#         if (state.row_status[elmt_y][elmt_x] != 1):
+#             available_marking.append(("row", pos))
+    
+#     for pos in cols_position_in_box:
+#         (elmt_x, elmt_y) = pos
+#         if (state.col_status[elmt_y][elmt_x] != 1):
+#             available_marking.append(("col", pos))
+    
+#     idx_marking = random.randrange(0, len(available_marking))
+#     (action_type, position) = available_marking[idx_marking]
+    
+#     return GameAction(action_type, position)
