@@ -14,10 +14,10 @@ class Minimax(Bot):
     def __init__(self) -> None:
         super().__init__()
         print("Silakan masukkan kedalaman yang diinginkan (>0)")
-        self.__kedalaman = int(input())
-        while (self.__kedalaman <= 0 ) :
-            print("Silakan masukkan kedalaman yang diinginkan (>0)")
-            self.__kedalaman = int(input())
+        self.__kedalaman = 4
+        # while (self.__kedalaman <= 0 ) :
+        #     print("Silakan masukkan kedalaman yang diinginkan (>0)")
+        #     self.__kedalaman = int(input())
 
     def get_action(self, state: GameState) -> GameAction:
         start_time = time.time()
