@@ -104,5 +104,5 @@ def obj_func(original_state: GameState, marked_position: GameAction):
             # sum_hist += f" + {box_eval(box_status, has_extra_turn)}"
             sum_list += [str(box_eval(box_status, has_extra_turn))]
         sum_hist += " + ".join(sum_list) + "\n"
-    return total_score, sum_hist
-    # return total_score
+    # return total_score, sum_hist
+    return total_score

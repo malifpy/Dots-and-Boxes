@@ -29,19 +29,19 @@ class SA_Bot(Bot):
             neighbor_marking = local_random_marking(state, current_marking)
             # neighbor_marking = global_random_marking(state)
             neighbor_state = modify_state(state, neighbor_marking)
-            E_neighbor, sh_n = obj_func(state, neighbor_marking)
-            E_current, sh_c = obj_func(state, current_marking)
+            E_neighbor = obj_func(state, neighbor_marking)
+            E_current = obj_func(state, current_marking)
 
             print("  " + ">>> Neighbor")
             print("  " * 2 + f"Action={neighbor_marking.action_type} pos=({neighbor_marking.position})")
             print("  " * 2 + f"E_neighbor={E_neighbor}")
-            print(sh_n)
+            # print(sh_n)
             print("  " + "<<< Neighbor")
 
             print("  >>> Current")
             print(f"    Action={current_marking.action_type} pos=({current_marking.position})")
             print(f"    E_current={E_current}")
-            print(sh_c)
+            # print(sh_c)
             print("  <<< Current")
             print("<<< Iteration")
             
